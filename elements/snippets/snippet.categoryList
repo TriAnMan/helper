@@ -1,0 +1,38 @@
+<?php
+/**
+ * Сниппет обеспечивает вывод массива объектов в данной категории
+ */
+if(!class_exists('Helper')) {
+	$sModelPath = $modx->getOption('core_path').'components/helper/model/';
+	include_once $sModelPath.'helper.class.php';
+}
+
+$id = $modx->resource->get('id');
+
+//органичиваем вывод для определенных айдишников
+if( isset($scriptProperties['skipOnIds'])){
+  $arSkipOnIds = explode(',',$scriptProperties['skipOnIds']);
+  if( in_array($id, $arSkipOnIds)){
+	  return '';
+  }
+}
+
+// Обрабатываем входные параметры
+$bFolder = isset($scriptProperties['folder']) && $scriptProperties['folder'] == true;
+$sHtmlOptions = isset($scriptProperties['htmlOptions']) ? $scriptProperties['htmlOptions'] : '';
+
+if (!$arResourceList = Helper::getSiblingList($bFolder)){
+	return '';
+}
+
+$sText = '';
+foreach($arResourceList as $arResource){
+	if($id != $arResource['id']){
+		$sUrl = $modx->makeUrl($arResource['id']);
+		$sText .= '<a href="' .$sUrl. '" ' .$sHtmlOptions. '>' .$arResource['pagetitle']. '</a> ';
+	} else {
+		$sText .= '<span ' .$sHtmlOptions. '>' .$arResource['pagetitle']. '</span> ';
+	}
+}
+
+return $sText;
